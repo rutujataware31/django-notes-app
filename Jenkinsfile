@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME = "notes-app"
         IMAGE_TAG = "latest"
         DOCKERHUB_CREDENTIALS = "dockerHubCreds"
-        DOCKERHUB_USER = "your_dockerhub_username"
+        DOCKERHUB_USER = "rutuja3112"
     }
 
     stages {
