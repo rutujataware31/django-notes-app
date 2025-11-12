@@ -1,52 +1,29 @@
-pipeline {
+//@Library('Shared')_
+pipeline{
     agent any
-
-    environment {
-        IMAGE_NAME = "notes-app"
-        IMAGE_TAG = "latest"
-        DOCKERHUB_CREDENTIALS = "dockerHubCreds"
-        DOCKERHUB_USER = "your_dockerhub_username"
-    }
-
-    stages {
-        stage('Clone Code') {
-            steps {
-                echo "Cloning repository..."
-                git branch: 'main', url: 'https://github.com/rutujataware31/django-notes-app.git'
+    
+    stages{
+        stage("Code clone"){
+            steps{
+                sh "whoami"
+            clone("https://github.com/LondheShubham153/django-notes-app.git","main")
             }
         }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    echo "Building Docker image..."
-                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-                }
+        stage("Code Build"){
+            steps{
+            dockerbuild("notes-app","latest")
             }
         }
-
-        stage('Push to DockerHub') {
-            steps {
-                script {
-                    echo "Pushing image to DockerHub..."
-                    withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh """
-                            echo "$PASSWORD" | docker login -u "$USERNAME" --password-stdin
-                            docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}
-                            docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}
-                        """
-                    }
-                }
+        stage("Push to DockerHub"){
+            steps{
+                dockerpush("dockerHubCreds","notes-app","latest")
             }
         }
-
-        stage('Deploy Container') {
-            steps {
-                script {
-                    echo "Running container locally..."
-                    sh "docker run -d -p 8000:8000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
-                }
+        stage("Deploy"){
+            steps{
+                deploy()
             }
         }
+        
     }
 }
